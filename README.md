@@ -1,228 +1,189 @@
-# Gezahegn Yeshiye - Personal Portfolio & Tech Blog
+# Portfolio Backend Server
 
-A modern, responsive personal portfolio and tech blog website built with HTML, CSS, JavaScript, and React (via CDN). Includes optional backend server with SQLite database for dynamic content management.
-
-## Two Versions Available
-
-### 1. Static Version (index.html)
-- No server required
-- Data from `js/data.js`
-- Perfect for GitHub Pages, Netlify
-- Just open in browser
-
-### 2. Dynamic Version (index-with-api.html)
-- Backend server with database
-- REST API for data management
-- Persistent storage
-- Contact form saves to database
+Flask-based REST API server with SQLite database for the portfolio website.
 
 ## Features
 
-✨ **Modern Design**
-- Clean, professional UI with smooth animations
-- Dark/Light mode toggle
-- Responsive mobile-first design
-- Smooth scrolling navigation
+- RESTful API endpoints
+- SQLite database for data persistence
+- CORS enabled for frontend integration
+- Automatic database initialization with sample data
+- Contact form submission handling
+- Blog post management
+- Project management
+- Skills management
 
-🎯 **Sections**
-- Hero section with animated typing effect
-- About section with animated skill progress bars
-- Projects showcase with 6 sample projects
-- Tech blog with category filtering
-- Contact form with validation
-- Social media integration
+## Prerequisites
 
-🚀 **Technical Highlights**
-- React functional components
-- Form validation
-- Local storage for theme preference
-- Intersection Observer for animations
-- Fully responsive (mobile, tablet, desktop)
-- No build tools required - runs directly in browser
+- Python 3.7 or higher
+- pip (Python package manager)
 
-💾 **Backend Features** (Optional)
-- Flask REST API server
-- SQLite database
-- CRUD operations for projects, blog posts, skills
-- Contact form submission storage
-- Auto-initialization with sample data
+## Installation
 
-## Project Structure
-
-```
-├── index.html              # Main HTML file
-├── styles/
-│   └── main.css           # All CSS styles
-├── js/
-│   ├── data.js            # Portfolio data
-│   ├── App.js             # Main React app
-│   └── components/
-│       ├── Navbar.js      # Navigation component
-│       ├── Hero.js        # Hero section
-│       ├── About.js       # About section
-│       ├── Projects.js    # Projects showcase
-│       ├── Blog.js        # Blog section
-│       ├── Contact.js     # Contact form
-│       ├── Footer.js      # Footer component
-│       └── ScrollToTop.js # Scroll to top button
-└── README.md
-```
-
-## Quick Start
-
-### Static Version (Easiest)
-1. Open `index.html` in your browser
-2. Done! 🎉
-
-### With Backend Server
-1. Run `START_SERVER.bat` (Windows)
-2. Open `index-with-api.html` in your browser
-3. Data now loads from database
-
-📖 **For detailed setup instructions, see [SETUP.md](SETUP.md)**
-
-## Getting Started
-
-### Local Development
-
-**Static Version:**
-1. Clone or download this repository
-2. Open `index.html` in your web browser
-3. That's it! No installation or build process needed.
-
-**Backend Version:**
-1. Install Python 3.7+ from [python.org](https://www.python.org/)
-2. Run `START_SERVER.bat` (Windows) or:
-   ```bash
-   cd server
-   pip install -r requirements.txt
-   python app.py
-   ```
-3. Open `index-with-api.html` in your browser
-
-### Customization
-
-**Static Version:**
-Edit `js/data.js` to customize:
-- Personal information
-- Skills and skill levels
-- Projects
-- Blog posts
-- Social media links
-
-**Backend Version:**
-Use the REST API to add/edit content:
+1. Navigate to the server directory:
 ```bash
-# Add a project
-curl -X POST http://localhost:5000/api/projects \
-  -H "Content-Type: application/json" \
-  -d '{"title":"My Project","description":"..."}'
+cd server
 ```
 
-See `server/README.md` for complete API documentation.
+2. Install required packages:
+```bash
+pip install -r requirements.txt
+```
 
-## Deployment
+Or install manually:
+```bash
+pip install Flask flask-cors
+```
 
-### GitHub Pages
+## Running the Server
 
-1. Create a new repository on GitHub
-2. Push your code to the repository
-3. Go to Settings > Pages
-4. Select your main branch as the source
-5. Your site will be live at `https://yourusername.github.io/repository-name`
+Start the server:
+```bash
+python app.py
+```
 
-### Netlify
+The server will start on `http://localhost:5000`
 
-1. Create a Netlify account
-2. Drag and drop your project folder to Netlify
-3. Your site will be live instantly with a custom URL
+On first run, the database will be automatically created and populated with sample data.
 
-### Vercel
+## API Endpoints
 
-1. Install Vercel CLI: `npm i -g vercel`
-2. Run `vercel` in your project directory
-3. Follow the prompts to deploy
-
-## Features to Implement
-
-To make this production-ready, consider adding:
-
-- [ ] Replace placeholder images with actual photos
-- [ ] Add real project links
-- [ ] Create actual blog post pages
-- [ ] Add a real CV file for download
-- [ ] Implement backend for contact form (EmailJS, Formspree, etc.)
-- [ ] Add Google Analytics
-- [ ] Optimize images
-- [ ] Add meta tags for SEO
-- [ ] Create a favicon
-
-## Backend API Endpoints
-
-When using the backend server, these endpoints are available:
+### Health Check
+- `GET /api/health` - Check server status
 
 ### Projects
 - `GET /api/projects` - Get all projects
-- `POST /api/projects` - Create new project
+- `POST /api/projects` - Create a new project
 
-### Blog
+### Blog Posts
 - `GET /api/blog` - Get all blog posts
-- `GET /api/blog?category=React` - Filter by category
-- `GET /api/blog/:id` - Get single post
-- `POST /api/blog` - Create new post
+- `GET /api/blog?category=React` - Get blog posts by category
+- `GET /api/blog/:id` - Get a single blog post
+- `POST /api/blog` - Create a new blog post
 
 ### Contact
 - `POST /api/contact` - Submit contact form
-- `GET /api/contact` - Get all messages (admin)
+- `GET /api/contact` - Get all contact messages (admin)
 
 ### Skills
 - `GET /api/skills` - Get all skills
-- `POST /api/skills` - Add new skill
+- `POST /api/skills` - Create a new skill
 
-### Health
-- `GET /api/health` - Check server status
+## API Examples
 
-📖 **Full API documentation: [server/README.md](server/README.md)**
+### Get All Projects
+```bash
+curl http://localhost:5000/api/projects
+```
+
+### Create a Project
+```bash
+curl -X POST http://localhost:5000/api/projects \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "My New Project",
+    "description": "Project description",
+    "image": "https://example.com/image.jpg",
+    "technologies": ["React", "Node.js"],
+    "github_url": "https://github.com/user/repo",
+    "demo_url": "https://demo.example.com"
+  }'
+```
+
+### Submit Contact Form
+```bash
+curl -X POST http://localhost:5000/api/contact \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "message": "Hello, I would like to connect!"
+  }'
+```
+
+### Get Blog Posts by Category
+```bash
+curl http://localhost:5000/api/blog?category=React
+```
+
+## Database Schema
+
+### projects
+- id (INTEGER PRIMARY KEY)
+- title (TEXT)
+- description (TEXT)
+- image (TEXT)
+- technologies (TEXT - JSON array)
+- github_url (TEXT)
+- demo_url (TEXT)
+- created_at (TIMESTAMP)
+
+### blog_posts
+- id (INTEGER PRIMARY KEY)
+- title (TEXT)
+- excerpt (TEXT)
+- content (TEXT)
+- image (TEXT)
+- category (TEXT)
+- date (TEXT)
+- created_at (TIMESTAMP)
+
+### contact_messages
+- id (INTEGER PRIMARY KEY)
+- name (TEXT)
+- email (TEXT)
+- message (TEXT)
+- created_at (TIMESTAMP)
+- read (BOOLEAN)
+
+### skills
+- id (INTEGER PRIMARY KEY)
+- name (TEXT)
+- level (INTEGER)
+- category (TEXT)
 
 ## Database Management
 
-View database contents:
-```bash
-cd server
-python db_viewer.py
+The database file `portfolio.db` is created automatically in the server directory.
+
+To reset the database:
+1. Stop the server
+2. Delete `portfolio.db`
+3. Restart the server (it will recreate with sample data)
+
+## Development
+
+The server runs in debug mode by default, which provides:
+- Auto-reload on code changes
+- Detailed error messages
+- Interactive debugger
+
+For production, set `debug=False` in `app.py`.
+
+## Troubleshooting
+
+### Port Already in Use
+If port 5000 is already in use, change the port in `app.py`:
+```python
+app.run(debug=True, host='0.0.0.0', port=5001)
 ```
 
-Reset database:
-1. Stop the server
-2. Delete `server/portfolio.db`
-3. Restart server (auto-recreates with sample data)
+### CORS Issues
+CORS is enabled for all origins. For production, restrict origins in `app.py`:
+```python
+CORS(app, origins=['https://yourdomain.com'])
+```
 
-## Browser Support
+### Database Locked
+If you get a "database is locked" error, ensure only one instance of the server is running.
 
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
+## Security Notes
 
-## Technologies Used
-
-- HTML5
-- CSS3 (Flexbox, Grid, Animations)
-- JavaScript (ES6+)
-- React 18 (via CDN)
-- Font Awesome Icons
-
-## License
-
-This project is open source and available under the MIT License.
-
-## Contact
-
-Gezahegn Yeshiye
-- GitHub: [@gezahegn](https://github.com/gezahegn)
-- LinkedIn: [gezahegn-yeshiye](https://linkedin.com/in/gezahegn-yeshiye)
-- Twitter: [@gezahegn](https://twitter.com/gezahegn)
-
----
-
-Made with ❤️ by Gezahegn Yeshiye
+This is a development server. For production:
+- Add authentication for admin endpoints
+- Implement rate limiting
+- Use environment variables for configuration
+- Add input validation and sanitization
+- Use a production WSGI server (gunicorn, waitress)
+- Enable HTTPS
+- Restrict CORS origins
