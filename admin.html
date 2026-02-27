@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Admin Panel</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        .admin-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .admin-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+        .admin-tab {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--text-light);
+            transition: var(--transition);
+        }
+        .admin-tab.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+        }
+        .admin-panel {
+            display: none;
+            background: var(--bg-white);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+        .admin-panel.active {
+            display: block;
+        }
+        .form-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+        }
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .data-table th {
+            background: var(--bg-light);
+            font-weight: 600;
+        }
+        .status-message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        .status-success {
+            background: #10b981;
+            color: white;
+        }
+        .status-error {
+            background: #ef4444;
+            color: white;
+        }
+        .status-warning {
+            background: #f59e0b;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>Portfolio Admin Panel</h1>
+            <p>Manage your portfolio content</p>
+            <div id="serverStatus"></div>
+        </div>
+
+        <div class="admin-tabs">
+            <button class="admin-tab active" onclick="showTab('projects')">Projects</button>
+            <button class="admin-tab" onclick="showTab('blog')">Blog Posts</button>
+            <button class="admin-tab" onclick="showTab('skills')">Skills</button>
+            <button class="admin-tab" onclick="showTab('messages')">Messages</button>
+        </div>
+
+        <!-- Projects Panel -->
+        <div id="projects" class="admin-panel active">
+            <h2>Add New Project</h2>
+            <div id="projectStatus"></div>
+            <form id="projectForm" class="form-grid">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Image URL</label>
+                    <input type="url" name="image">
+                </div>
+                <div class="form-group">
+                    <label>Technologies (comma-separated)</label>
+                    <input type="text" name="technologies" placeholder="React, CSS, JavaScript">
+                </div>
+                <div class="form-group">
+                    <label>GitHub URL</label>
+                    <input type="url" name="github_url">
+                </div>
+                <div class="form-group">
+                    <label>Demo URL</label>
+                    <input type="url" name="demo_url">
+                </div>
+                <button type="submit" class="btn btn-primary">Add Project</button>
+            </form>
+            <div id="projectsList"></div>
+        </div>
+
+        <!-- Blog Panel -->
+        <div id="blog" class="admin-panel">
+            <h2>Add New Blog Post</h2>
+            <div id="blogStatus"></div>
+            <form id="blogForm" class="form-grid">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label>Excerpt</label>
+                    <textarea name="excerpt" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Content</label>
+                    <textarea name="content" rows="10" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Image URL</label>
+                    <input type="url" name="image">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text" name="category" required>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" name="date" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Blog Post</button>
+            </form>
+            <div id="blogList"></div>
+        </div>
+
+        <!-- Skills Panel -->
+        <div id="skills" class="admin-panel">
+            <h2>Add New Skill</h2>
+            <div id="skillStatus"></div>
+            <form id="skillForm" class="form-grid">
+                <div class="form-group">
+                    <label>Skill Name</label>
+                    <input type="text" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label>Level (0-100)</label>
+                    <input type="number" name="level" min="0" max="100" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text" name="category">
+                </div>
+                <button type="submit" class="btn btn-primary">Add Skill</button>
+            </form>
+            <div id="skillsList"></div>
+        </div>
+
+        <!-- Messages Panel -->
+        <div id="messages" class="admin-panel">
+            <h2>Contact Messages</h2>
+            <div id="messagesList"></div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        // Check server status
+        async function checkServer() {
+            const status = document.getElementById('serverStatus');
+            const health = await api.healthCheck();
+            
+            if (health.status === 'healthy') {
+                status.innerHTML = '<div class="status-message status-success">✅ Server is online</div>';
+                loadAllData();
+            } else {
+                status.innerHTML = '<div class="status-message status-error">❌ Server is offline. Please start the backend server.</div>';
+            }
+        }
+
+        // Tab switching
+        function showTab(tabName) {
+            document.querySelectorAll('.admin-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.admin-panel').forEach(panel => panel.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Project form
+        document.getElementById('projectForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+                title: formData.get('title'),
+                description: formData.get('description'),
+                image: formData.get('image'),
+                technologies: formData.get('technologies').split(',').map(t => t.trim()),
+                github_url: formData.get('github_url'),
+                demo_url: formData.get('demo_url')
+            };
+
+            try {
+                await api.createProject(data);
+                document.getElementById('projectStatus').innerHTML = 
+                    '<div class="status-message status-success">✅ Project added successfully!</div>';
+                e.target.reset();
+                loadProjects();
+            } catch (error) {
+                document.getElementById('projectStatus').innerHTML = 
+                    '<div class="status-message status-error">❌ Failed to add project</div>';
+            }
+        });
+
+        // Blog form
+        document.getElementById('blogForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+                title: formData.get('title'),
+                excerpt: formData.get('excerpt'),
+                content: formData.get('content'),
+                image: formData.get('image'),
+                category: formData.get('category'),
+                date: formData.get('date')
+            };
+
+            try {
+                await api.createBlogPost(data);
+                document.getElementById('blogStatus').innerHTML = 
+                    '<div class="status-message status-success">✅ Blog post added successfully!</div>';
+                e.target.reset();
+                loadBlogPosts();
+            } catch (error) {
+                document.getElementById('blogStatus').innerHTML = 
+                    '<div class="status-message status-error">❌ Failed to add blog post</div>';
+            }
+        });
+
+        // Skill form
+        document.getElementById('skillForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+                name: formData.get('name'),
+                level: parseInt(formData.get('level')),
+                category: formData.get('category')
+            };
+
+            try {
+                await api.createSkill(data);
+                document.getElementById('skillStatus').innerHTML = 
+                    '<div class="status-message status-success">✅ Skill added successfully!</div>';
+                e.target.reset();
+                loadSkills();
+            } catch (error) {
+                document.getElementById('skillStatus').innerHTML = 
+                    '<div class="status-message status-error">❌ Failed to add skill</div>';
+            }
+        });
+
+        // Load data functions
+        async function loadProjects() {
+            const projects = await api.getProjects();
+            const html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Technologies</th>
+                            <th>Links</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${projects.map(p => `
+                            <tr>
+                                <td>${p.id}</td>
+                                <td>${p.title}</td>
+                                <td>${p.technologies.join(', ')}</td>
+                                <td>
+                                    <a href="${p.github_url}" target="_blank">GitHub</a> | 
+                                    <a href="${p.demo_url}" target="_blank">Demo</a>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('projectsList').innerHTML = html;
+        }
+
+        async function loadBlogPosts() {
+            const posts = await api.getBlogPosts();
+            const html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${posts.map(p => `
+                            <tr>
+                                <td>${p.id}</td>
+                                <td>${p.title}</td>
+                                <td>${p.category}</td>
+                                <td>${p.date}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('blogList').innerHTML = html;
+        }
+
+        async function loadSkills() {
+            const skills = await api.getSkills();
+            const html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Level</th>
+                            <th>Category</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${skills.map(s => `
+                            <tr>
+                                <td>${s.id}</td>
+                                <td>${s.name}</td>
+                                <td>${s.level}%</td>
+                                <td>${s.category || 'N/A'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('skillsList').innerHTML = html;
+        }
+
+        async function loadMessages() {
+            const messages = await api.getContactMessages();
+            const html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Message</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${messages.map(m => `
+                            <tr>
+                                <td>${m.id}</td>
+                                <td>${m.name}</td>
+                                <td>${m.email}</td>
+                                <td>${m.message.substring(0, 50)}...</td>
+                                <td>${new Date(m.created_at).toLocaleDateString()}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('messagesList').innerHTML = html;
+        }
+
+        function loadAllData() {
+            loadProjects();
+            loadBlogPosts();
+            loadSkills();
+            loadMessages();
+        }
+
+        // Initialize
+        checkServer();
+    </script>
+</body>
+</html>
